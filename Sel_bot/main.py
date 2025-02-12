@@ -27,9 +27,9 @@ while True:
             break
         
         if game_logic.get_game_timer(driver) == "0":
-            game_logic.handle_game_end(driver, continue_play=True)
+            time.sleep(10)
             print("게임 종료. 새 게임 시작")
-            time.sleep(1)
+            game_logic.handle_game_end(driver, continue_play=True)
 
         game_board = game_logic.get_game_board(driver)
         if game_board is None:

@@ -12,6 +12,7 @@ try:
     start_button = game_logic.WebDriverWait(driver, 10).until(
         game_logic.EC.element_to_be_clickable((game_logic.By.XPATH, "//div[contains(text(), '시작!')]"))
     )
+    time.sleep(1)
     start_button.click()
     print("게임 시작 버튼 클릭 완료")
 except Exception as e:
@@ -24,6 +25,11 @@ while True:
         if not driver.window_handles:
             print("게임 창이 닫혔습니다. 프로그램을 종료합니다.")
             break
+        
+        if game_logic.get_game_timer(driver) == "0":
+            game_logic.handle_game_end(driver, continue_play=True)
+            print("게임 종료. 새 게임 시작")
+            time.sleep(1)
 
         game_board = game_logic.get_game_board(driver)
         if game_board is None:
@@ -34,16 +40,13 @@ while True:
         if not combinations:
             # print("가능한 조합 없음")
             game_logic.get_game_board(driver)  # 게임 보드 갱신
-            time.sleep(2)
+            time.sleep(1)
             continue
 
         best_choice = combinations[0]
         game_logic.select_area(driver, *best_choice)
         time.sleep(1)
-
-        # 한판 끝났을 때 처리
-        game_logic.handle_game_end(driver, continue_play=True)
-
+            
     except Exception as e:
         print("오류 발생 또는 창이 닫힘:", e)
         break

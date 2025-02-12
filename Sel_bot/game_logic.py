@@ -35,6 +35,7 @@ def find_combinations(game_board):
                     
     for y in range(height):
         for x in range(width):
+            # 가로 탐색
             for length in range(2, width - x + 1):
                 if x + length <= width:
                     sub_array = game_board[y, x:x + length]
@@ -48,7 +49,7 @@ def find_combinations(game_board):
                     if np.sum(sub_array) == 10:
                         valid_combinations.append((x, y, 1, length))  # 세로 선택
             
-            # 사각형 탐색 (직사각형 범위 내 합이 10인지 확인)
+            # 사각형 탐색 (사각형 범위 내 합이 10인지 확인)
             for h in range(1, height - y + 1): 			# 세로 크기
                 for w in range(2, width - x + 1):  		# 가로 크기 (최소 2칸)
                     sub_matrix = game_board[y:y + h, x:x + w]  # 사각형 영역 추출
@@ -71,24 +72,33 @@ def select_area(driver, start_x, start_y, width, height):
 
     except Exception as e:
         print("영역 선택 중 오류 발생:", e)
+        
+def get_game_timer(driver):
+    """게임 타이머의 시간 가져오기"""
+    try:
+        timer = driver.find_element(By.CSS_SELECTOR, ".sc-kuACkN")
+        return timer.text
+
+    except:
+        return "0"
 
 def handle_game_end(driver, continue_play):
     """한 판이 끝나면 '한판 더!' 또는 '닫기' 버튼을 클릭"""
-    try:
-        retry_button = WebDriverWait(driver, 5).until(
-            EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), '한판 더!')]"))
-        )
-        close_button = WebDriverWait(driver, 5).until(
-            EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), '닫기')]"))
-        )
+    
+    retry_button = WebDriverWait(driver, 5).until(
+        EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), '한판 더!')]"))
+    )
+    close_button = WebDriverWait(driver, 5).until(
+        EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), '닫기')]"))
+    )
+    
+    # 버튼이 존재하지 않을 경우 return
+    if not retry_button or not close_button:
+        return
 
-        if continue_play:
-            retry_button.click()  # "한판 더!" 클릭
-            # print("'한판 더!' 버튼 클릭 완료. 새 게임 시작!")
-        else:
-            close_button.click()  # "닫기" 클릭
-            # print("게임 종료. 자동 플레이 종료.")
-
-    except Exception:
-        print("게임 진행 중 또는 종료 버튼 없음, 계속 진행")
-        time.sleep(2)  # 게임이 끝난 것이 아니므로 대기
+    if continue_play:
+        retry_button.click()  # "한판 더!" 클릭
+        print("'한판 더!' 버튼 클릭 완료. 새 게임 시작!")
+    else:
+        close_button.click()  # "닫기" 클릭
+        print("게임 종료. 자동 플레이 종료.")

@@ -8,8 +8,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 
-import keyboard
-
 import numpy as np
 
 
@@ -159,12 +157,8 @@ def update_game_board(game_board,start_x, start_y, width, height):
             
     return game_board
 
-
-def handle_game_end(driver, continue_play):
-    """ 게임이 종료되었을 때 '한판 더!' 또는 '닫기' 버튼을 클릭하는 함수 """
-    while True:
-        try:
-            # "한판 더!" 또는 "닫기" 버튼 감지
+def handle_game_end(driver):
+    # "한판 더!" 또는 "닫기" 버튼 감지
             retry_button = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), '한판 더!')]"))
             )
@@ -178,23 +172,24 @@ def handle_game_end(driver, continue_play):
             else:
                 close_button.click()  # "닫기" 클릭
                 print("게임 종료. 자동 플레이 종료.")
-                break  # 종료 후 루프 탈출
-
-            time.sleep(3)  # 새 게임 시작 대기
-            return  # 함수 종료 후 자동 플레이 다시 시작
-
-        except:
-            # 버튼이 없으면 게임 진행 중
-            print("게임 진행 중...")
-            time.sleep(2)
-
 
 while True:
-    play_game(driver)  # 게임 플레이 실행
+    try:
+        # 창이 열려 있는지 확인
+        if not driver.window_handles:
+            print("게임 창이 닫혔습니다. 프로그램을 종료합니다.")
+            break  # 루프 탈출 후 종료
+        
+        play_game(driver)  # 게임 플레이 실행
 
-    # 'q' 키를 누르면 종료
-    if keyboard.is_pressed("q"):
-        print("수동 종료: 'q' 키 감지됨. 프로그램을 종료합니다.")
-        break
+        print("게임이 종료되었습니다. 다음 라운드를 대기 중...")
 
-    print("게임이 종료되었습니다. 다음 라운드를 대기 중...")
+    except Exception as e:
+        print("오류 발생 또는 창이 닫힘:", e)
+        break  # 예외 발생 시 종료
+
+# Selenium 드라이버 종료
+try:
+    driver.quit()
+except:
+    pass

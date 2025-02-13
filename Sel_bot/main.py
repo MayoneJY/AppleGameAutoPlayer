@@ -46,7 +46,7 @@ while True:
             time.sleep(1)
             continue
 
-        best_choice = combinations[0]
+        best_choice = combinations
         x, y, w, h = best_choice
         game_board[y:y + h, x:x + w] = 0 # 선택한 영역을 0으로 초기화
         game_logic.select_area(driver, *best_choice)

@@ -31,7 +31,6 @@ def get_game_board(driver):
 def find_combinations(game_board):
     """합이 10이 되는 조합을 찾음"""
     height, width = game_board.shape
-    valid_combinations = []
                     
     for y in range(height):
         for x in range(width):
@@ -40,23 +39,22 @@ def find_combinations(game_board):
                 if x + length <= width:
                     sub_array = game_board[y, x:x + length]
                     if np.sum(sub_array) == 10:
-                        valid_combinations.append((x, y, length, 1))  # 가로 선택
+                        return (x, y, length, 1)  # 가로 선택
             
             # 세로 탐색
             for length in range(2, height - y + 1):
                 if y + length <= height:
                     sub_array = game_board[y:y + length, x]
                     if np.sum(sub_array) == 10:
-                        valid_combinations.append((x, y, 1, length))  # 세로 선택
+                        return (x, y, 1, length)  # 세로 선택
             
             # 사각형 탐색 (사각형 범위 내 합이 10인지 확인)
             for h in range(1, height - y + 1): 			# 세로 크기
                 for w in range(2, width - x + 1):  		# 가로 크기 (최소 2칸)
                     sub_matrix = game_board[y:y + h, x:x + w]  # 사각형 영역 추출
                     if np.sum(sub_matrix) == 10:
-                        valid_combinations.append((x, y, w, h))
+                        return (x, y, w, h)
 
-    return valid_combinations
 
 def select_area(driver, start_x, start_y, width, height):
     """마우스를 사용해 특정 영역을 드래그하여 선택"""

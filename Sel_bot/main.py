@@ -18,6 +18,8 @@ try:
 except Exception as e:
     print("게임 시작 버튼을 찾을 수 없습니다.", e)
 
+game_board = None
+
 # 게임 자동 플레이 루프
 while True:
     try:
@@ -29,21 +31,24 @@ while True:
         if game_logic.get_game_timer(driver) == "0":
             time.sleep(10)
             print("게임 종료. 새 게임 시작")
+            game_board = None
             game_logic.handle_game_end(driver, continue_play=True)
-
-        game_board = game_logic.get_game_board(driver)
         if game_board is None:
-            print("게임 보드를 불러올 수 없음, 다시 시도")
-            continue
+            game_board = game_logic.get_game_board(driver)
+            if game_board is None:
+                print("게임 보드를 불러올 수 없음, 다시 시도")
+                continue
 
         combinations = game_logic.find_combinations(game_board)
         if not combinations:
             # print("가능한 조합 없음")
-            game_logic.get_game_board(driver)  # 게임 보드 갱신
+            game_board = game_logic.get_game_board(driver)  # 게임 보드 갱신
             time.sleep(1)
             continue
 
         best_choice = combinations[0]
+        x, y, w, h = best_choice
+        game_board[y:y + h, x:x + w] = 0 # 선택한 영역을 0으로 초기화
         game_logic.select_area(driver, *best_choice)
         time.sleep(1)
             
